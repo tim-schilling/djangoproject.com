@@ -494,6 +494,28 @@ class UpdateDocTests(TestCase):
             transform=attrgetter("path"),
         )
 
+    def test_sync_to_db_no_release(self):
+        self.release.release = None
+        self.release.sync_to_db(
+            [
+                {
+                    "body": "This is the body",
+                    "title": "This is the title",
+                    "current_page_name": "foo/bar",
+                }
+            ]
+        )
+        self.assertQuerySetEqual(
+            self.release.documents.all(),
+            [
+                "foo/bar",
+                reverse("community-ecosystem", host="www"),
+                self.entry.get_absolute_url(),
+            ],
+            ordered=False,
+            transform=attrgetter("path"),
+        )
+
     def test_blog_to_db_skip_non_english(self):
         """
         Releases must be English to include the blog and website results in search.
