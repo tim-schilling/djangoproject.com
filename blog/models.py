@@ -31,10 +31,8 @@ def _md_slugify(value, separator):
 
 
 class EntryQuerySet(models.QuerySet):
-    def published(self, as_of=None):
-        if as_of is None:
-            as_of = timezone.now()
-        return self.active().filter(pub_date__lte=as_of)
+    def published(self):
+        return self.active().filter(pub_date__lte=timezone.now())
 
     def active(self):
         return self.filter(is_active=True)

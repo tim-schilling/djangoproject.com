@@ -494,57 +494,13 @@ class UpdateDocTests(TestCase):
             transform=attrgetter("path"),
         )
 
-    def test_sync_to_db_no_release(self):
-        self.release.release = None
-        self.release.sync_to_db(
-            [
-                {
-                    "body": "This is the body",
-                    "title": "This is the title",
-                    "current_page_name": "foo/bar",
-                }
-            ]
-        )
-        self.assertQuerySetEqual(
-            self.release.documents.all(),
-            [
-                "foo/bar",
-                reverse("community-ecosystem", host="www"),
-                self.entry.get_absolute_url(),
-            ],
-            ordered=False,
-            transform=attrgetter("path"),
-        )
-
-    def test_blog_to_db_skip_non_english(self):
+    def test_sync_to_db_skip_non_english(self):
         """
         Releases must be English to include the blog and website results in search.
         """
-        non_english = DocumentRelease.objects.create(
-            lang="es",
-            release=Release.objects.create(
-                version="88.0", eol_date=self.release.release.eol_date
-            ),
-        )
+        non_english = DocumentRelease.objects.create(lang="es")
         non_english.sync_to_db([])
         self.assertQuerySetEqual(non_english.documents.all(), [])
-
-    def test_blog_to_db_skip_no_end_support(self):
-        """
-        Releases must have an end support to include the blog.
-        """
-        no_end_support = DocumentRelease.objects.create(
-            lang="en",
-            release=Release.objects.create(version="99.0"),
-        )
-        no_end_support.sync_to_db([])
-
-        self.assertQuerySetEqual(
-            no_end_support.documents.all(),
-            [reverse("community-ecosystem", host="www")],
-            ordered=False,
-            transform=attrgetter("path"),
-        )
 
     def test_clean_path(self):
         self.release.sync_to_db(

@@ -66,11 +66,6 @@ class EntryTestCase(DateTimeMixin, TestCase):
             ["past active"],
             transform=lambda entry: entry.headline,
         )
-        self.assertQuerySetEqual(
-            Entry.objects.published(self.tomorrow),
-            ["future active", "past active"],
-            transform=lambda entry: entry.headline,
-        )
 
     def test_manager_searchable(self):
         """

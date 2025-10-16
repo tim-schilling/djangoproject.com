@@ -230,15 +230,10 @@ class DocumentRelease(models.Model):
         Sync the blog entries into search based on the release documents
         support end date.
         """
-        if self.lang != "en" or (self.release and not self.release.eol_date):
-            # The blog is only written in English, and we need to know
-            # the release's support end to know when to stop considering
-            # blog posts relevant.
-            # For dev releases, the DocumentRelease.release will not be
-            # set.
-            return
-        as_of = self.release.eol_date if self.release else None
-        entries = Entry.objects.published(as_of).searchable()
+        if self.lang != "en":
+            return  # The blog is only written in English currently
+
+        entries = Entry.objects.published().searchable()
         Document.objects.bulk_create(
             [
                 Document(
