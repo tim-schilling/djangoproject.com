@@ -609,15 +609,14 @@ class DocumentUrlTests(TestCase):
             },
         ]
         Document.objects.bulk_create(Document(**doc) for doc in documents)
-        document_index, document_detail = self.release.documents.order_by("path")
-        self.assertEqual(
-            document_index.get_absolute_url(),
-            "http://docs.djangoproject.localhost:8000/en/1.2.3/",
-        )
-        self.assertEqual(
-            document_detail.get_absolute_url(),
-            "http://docs.djangoproject.localhost:8000"
-            "/en/1.2.3/topics/http/generic-views/",
+        self.assertQuerySetEqual(
+            self.release.documents.order_by("path"),
+            [
+                "http://docs.djangoproject.localhost:8000/en/1.2.3/",
+                "http://docs.djangoproject.localhost:8000/en/1.2.3/"
+                "topics/http/generic-views/",
+            ],
+            transform=lambda doc: doc.get_absolute_url(),
         )
 
     def test_document_url_documentation_category_website(self):
